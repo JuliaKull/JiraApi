@@ -15,27 +15,17 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 import java.util.List;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class })
-public class JiraApi{
-
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+public class JiraApi {
+    private static String issueKey = "AMM-132";
 
     public static void main(String[] args) {
         SpringApplication.run(JiraApi.class, args);
-        HttpResponse<JsonNode> response = null;
-        try {
-            response = Unirest.get("https://knits-hypersense-assets.atlassian.net/rest/api/3/issue/AMM-132")
-                    .basicAuth(System.getenv("email"), System.getenv("jira_token"))
-                    .header("Accept", "application/json")
-                    .asJson();
-        } catch (UnirestException e) {
-            throw new RuntimeException(e);
-        }
 
-        System.out.println(response.getBody());
         JiraClientService service = new JiraClientService();
+        //final String newIssueKey = service.createIssue("AMM", 2L, "Issue created from Java");
 
-        final String issueKey = service.createIssue("ABCD", 1L, "Issue created from JRJC");
-        service.updateIssueDescription(issueKey, "This is description from my Jira Client");
+        service.updateIssueDescription(issueKey, "This is new description from Jira Client");
         Issue issue = service.getIssue(issueKey);
         System.out.println(issue.getDescription());
 
@@ -43,12 +33,12 @@ public class JiraApi{
 
         System.out.println(service.getTotalVotesCount(issueKey));
 
-        service.addComment(issue, "This is comment from my Jira Client");
+        service.addComment(issue, "This is new comment from my Jira Client");
 
         List<Comment> comments = service.getAllComments(issueKey);
         comments.forEach(c -> System.out.println(c.getBody()));
 
-        service.deleteIssue(issueKey, true);
+        //service.deleteIssue(issueKey, true);
 
     }
 }
